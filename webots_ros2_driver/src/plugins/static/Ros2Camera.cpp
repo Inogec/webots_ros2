@@ -28,8 +28,7 @@ namespace webots_ros2_driver
 
     mCamPub = image_transport::create_camera_publisher(mNode, mTopicName + "/image");
 
-    // Image publisher
-    mImagePublisher = mNode->create_publisher<sensor_msgs::msg::Image>(mTopicName, rclcpp::SensorDataQoS().reliable());
+    // Image Message
     mImageMessage.header.frame_id = mFrameName;
     mImageMessage.height = wb_camera_get_height(mCamera);
     mImageMessage.width = wb_camera_get_width(mCamera);
@@ -38,8 +37,7 @@ namespace webots_ros2_driver
     mImageMessage.data.resize(4 * wb_camera_get_width(mCamera) * wb_camera_get_height(mCamera));
     mImageMessage.encoding = sensor_msgs::image_encodings::BGRA8;
 
-    // CameraInfo publisher
-    mCameraInfoPublisher = mNode->create_publisher<sensor_msgs::msg::CameraInfo>(mTopicName + "/camera_info", rclcpp::SensorDataQoS().reliable());
+    // CameraInfo Message
     mCameraInfoMessage.header.stamp = mNode->get_clock()->now();
     mCameraInfoMessage.header.frame_id = mFrameName;
     mCameraInfoMessage.height = wb_camera_get_height(mCamera);
@@ -81,11 +79,10 @@ namespace webots_ros2_driver
       return;
 
     // Enable/Disable sensor
-    const bool imageSubscriptionsExist = mImagePublisher->get_subscription_count() > 0;
     const bool recognitionSubscriptionsExist =
         (mRecognitionPublisher != nullptr && mRecognitionPublisher->get_subscription_count() > 0) ||
         (mWebotsRecognitionPublisher != nullptr && mWebotsRecognitionPublisher->get_subscription_count() > 0);
-    const bool shouldBeEnabled = mAlwaysOn || imageSubscriptionsExist || recognitionSubscriptionsExist;
+    const bool shouldBeEnabled = mAlwaysOn || recognitionSubscriptionsExist;
 
     if (shouldBeEnabled != mIsEnabled)
     {
@@ -106,12 +103,10 @@ namespace webots_ros2_driver
     }
 
     // Publish data
-    if (mAlwaysOn || imageSubscriptionsExist)
+    if (mAlwaysOn)
       publishImage();
     if (recognitionSubscriptionsExist)
       publishRecognition();
-    // if (mCameraInfoPublisher->get_subscription_count() > 0)
-    //   mCameraInfoPublisher->publish(mCameraInfoMessage);
   }
 
   void Ros2Camera::publishImage()
@@ -120,11 +115,12 @@ namespace webots_ros2_driver
     if (image)
     {
       // Synchronised timestamp
-      auto now = mNode->get_clock()->now();
+      rclcpp::Time now = mNode->get_clock()->now();
       mImageMessage.header.stamp = now;
       mCameraInfoMessage.header.stamp = now;
+
       memcpy(mImageMessage.data.data(), image, mImageMessage.data.size());
-      // mImagePublisher->publish(mImageMessage);
+
       mCamPub.publish(mImageMessage, mCameraInfoMessage);
     }
   }

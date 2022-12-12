@@ -22,7 +22,7 @@
 #include <geometry_msgs/msg/quaternion.hpp>
 #include <geometry_msgs/msg/point.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
 #include <sensor_msgs/msg/image.hpp>
@@ -55,14 +55,12 @@ namespace webots_ros2_driver
 
     WbDeviceTag mCamera;
 
+    // Camera Publisher
     image_transport::CameraPublisher mCamPub;
-
-    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr mImagePublisher;
     sensor_msgs::msg::Image mImageMessage;
-
-    rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr mCameraInfoPublisher;
     sensor_msgs::msg::CameraInfo mCameraInfoMessage;
 
+    // Recognition
     rclcpp::Publisher<vision_msgs::msg::Detection2DArray>::SharedPtr mRecognitionPublisher;
     rclcpp::Publisher<webots_ros2_msgs::msg::CameraRecognitionObjects>::SharedPtr mWebotsRecognitionPublisher;
     vision_msgs::msg::Detection2DArray mRecognitionMessage;
