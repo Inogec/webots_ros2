@@ -37,6 +37,8 @@
 #include <webots_ros2_driver/plugins/Ros2SensorPlugin.hpp>
 #include <webots_ros2_driver/WebotsNode.hpp>
 
+#include "image_transport/camera_publisher.hpp"
+#include "image_transport/image_transport.hpp"
 
 namespace webots_ros2_driver
 {
@@ -52,6 +54,8 @@ namespace webots_ros2_driver
     void publishRecognition();
 
     WbDeviceTag mCamera;
+
+    image_transport::CameraPublisher mCamPub;
 
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr mImagePublisher;
     sensor_msgs::msg::Image mImageMessage;

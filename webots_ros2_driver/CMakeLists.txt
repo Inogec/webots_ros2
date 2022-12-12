@@ -38,6 +38,7 @@ find_package(vision_msgs REQUIRED)
 find_package(webots_ros2_msgs REQUIRED)
 find_package(tinyxml2_vendor REQUIRED)
 find_package(TinyXML2 REQUIRED)
+find_package(image_transport REQUIRED)
 
 if($ENV{ROS_DISTRO} MATCHES "foxy" OR $ENV{ROS_DISTRO} MATCHES "galactic")
   find_package(PythonLibs 3.8 EXACT REQUIRED)
@@ -114,6 +115,7 @@ ament_target_dependencies(driver
   webots_ros2_msgs
   tinyxml2_vendor
   TinyXML2
+  image_transport
 )
 add_dependencies(driver
   compile-lib-vehicle

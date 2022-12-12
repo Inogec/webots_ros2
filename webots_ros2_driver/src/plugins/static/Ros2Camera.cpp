@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include <webots_ros2_driver/plugins/static/Ros2Camera.hpp>
-
 #include <webots/robot.h>
 
 namespace webots_ros2_driver
@@ -26,6 +25,8 @@ namespace webots_ros2_driver
     mCamera = wb_robot_get_device(parameters["name"].c_str());
 
     assert(mCamera != 0);
+
+    mCamPub = image_transport::create_camera_publisher(mNode, mTopicName + "/image");
 
     // Image publisher
     mImagePublisher = mNode->create_publisher<sensor_msgs::msg::Image>(mTopicName, rclcpp::SensorDataQoS().reliable());
@@ -109,8 +110,8 @@ namespace webots_ros2_driver
       publishImage();
     if (recognitionSubscriptionsExist)
       publishRecognition();
-    if (mCameraInfoPublisher->get_subscription_count() > 0)
-      mCameraInfoPublisher->publish(mCameraInfoMessage);
+    // if (mCameraInfoPublisher->get_subscription_count() > 0)
+    //   mCameraInfoPublisher->publish(mCameraInfoMessage);
   }
 
   void Ros2Camera::publishImage()
@@ -118,9 +119,13 @@ namespace webots_ros2_driver
     auto image = wb_camera_get_image(mCamera);
     if (image)
     {
-      mImageMessage.header.stamp = mNode->get_clock()->now();
+      // Synchronised timestamp
+      auto now = mNode->get_clock()->now();
+      mImageMessage.header.stamp = now;
+      mCameraInfoMessage.header.stamp = now;
       memcpy(mImageMessage.data.data(), image, mImageMessage.data.size());
-      mImagePublisher->publish(mImageMessage);
+      // mImagePublisher->publish(mImageMessage);
+      mCamPub.publish(mImageMessage, mCameraInfoMessage);
     }
   }
 
